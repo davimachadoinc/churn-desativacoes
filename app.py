@@ -317,8 +317,10 @@ if not df_desativ_plano.empty and not df_base_plano.empty:
         st.plotly_chart(chart_layout(fig, legend_bottom=True), use_container_width=True)
 
     with col_f:
-        st.subheader("Base vs Perdidos — Último Mês por Plano")
-        last_mes = df_churn["mes"].max()
+        st.subheader("Base vs Perdidos — Último Mês Completo por Plano")
+        current_month = pd.Timestamp.today().to_period("M").to_timestamp()
+        complete = df_churn[df_churn["mes"] < current_month]
+        last_mes = complete["mes"].max() if not complete.empty else df_churn["mes"].max()
         df_last = df_churn[df_churn["mes"] == last_mes]
         fig = go.Figure()
         fig.add_bar(
