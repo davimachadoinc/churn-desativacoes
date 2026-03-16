@@ -254,6 +254,27 @@ def load_desativacoes_mensais() -> pd.DataFrame:
         AND CAST(dt_fim_mens AS DATE) <= LAST_DAY(CURRENT_DATE())
         AND st_descricao_prd NOT LIKE '%Setup%'
         AND st_descricao_prd NOT LIKE '%[PRO-RATA]%'
+      UNION ALL
+      -- Clientes com dt_desativacao_sac preenchida mas sem dt_fim_mens nos produtos
+      SELECT
+        m.st_sincro_sac,
+        m.st_descricao_prd,
+        CAST(c.dt_desativacao_sac AS DATE)                           AS dt_fim,
+        DATE_TRUNC(CAST(c.dt_desativacao_sac AS DATE), MONTH)        AS mes,
+        m.valor_total
+      FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
+      INNER JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
+        ON m.st_sincro_sac = c.st_sincro_sac
+      WHERE m.dt_fim_mens IS NULL
+        AND c.dt_desativacao_sac IS NOT NULL
+        AND CAST(c.dt_desativacao_sac AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
+        AND CAST(c.dt_desativacao_sac AS DATE) <= LAST_DAY(CURRENT_DATE())
+        AND m.st_descricao_prd NOT LIKE '%Setup%'
+        AND m.st_descricao_prd NOT LIKE '%[PRO-RATA]%'
+      QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY m.st_sincro_sac, m.st_descricao_prd
+        ORDER BY m.dt_inicio_mens DESC
+      ) = 1
     ),
     renovacoes AS (
       SELECT DISTINCT d.st_sincro_sac, d.st_descricao_prd, d.mes
@@ -310,6 +331,28 @@ def load_desativacoes_por_plano() -> pd.DataFrame:
         AND st_descricao_prd NOT LIKE '%Setup%'
         AND st_descricao_prd NOT LIKE '%[PRO-RATA]%'
         AND {_EXCL_MODULOS.format(col="st_descricao_prd")}
+      UNION ALL
+      -- Clientes com dt_desativacao_sac preenchida mas sem dt_fim_mens nos produtos
+      SELECT
+        m.st_sincro_sac,
+        m.st_descricao_prd,
+        CAST(c.dt_desativacao_sac AS DATE)                           AS dt_fim,
+        DATE_TRUNC(CAST(c.dt_desativacao_sac AS DATE), MONTH)        AS mes,
+        m.valor_total
+      FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
+      INNER JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
+        ON m.st_sincro_sac = c.st_sincro_sac
+      WHERE m.dt_fim_mens IS NULL
+        AND c.dt_desativacao_sac IS NOT NULL
+        AND CAST(c.dt_desativacao_sac AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
+        AND CAST(c.dt_desativacao_sac AS DATE) <= LAST_DAY(CURRENT_DATE())
+        AND m.st_descricao_prd NOT LIKE '%Setup%'
+        AND m.st_descricao_prd NOT LIKE '%[PRO-RATA]%'
+        AND {_EXCL_MODULOS.format(col="m.st_descricao_prd")}
+      QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY m.st_sincro_sac, m.st_descricao_prd
+        ORDER BY m.dt_inicio_mens DESC
+      ) = 1
     ),
     renovacoes AS (
       SELECT DISTINCT d.st_sincro_sac, d.st_descricao_prd, d.mes
@@ -362,6 +405,27 @@ def load_desativacoes_detalhado() -> pd.DataFrame:
         AND CAST(m.dt_fim_mens AS DATE) <= LAST_DAY(CURRENT_DATE())
         AND m.st_descricao_prd NOT LIKE '%Setup%'
         AND m.st_descricao_prd NOT LIKE '%[PRO-RATA]%'
+      UNION ALL
+      -- Clientes com dt_desativacao_sac preenchida mas sem dt_fim_mens nos produtos
+      SELECT
+        m.st_sincro_sac,
+        m.st_descricao_prd,
+        CAST(c.dt_desativacao_sac AS DATE)                       AS dt_fim,
+        DATE_TRUNC(CAST(c.dt_desativacao_sac AS DATE), MONTH)    AS mes,
+        m.valor_total
+      FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
+      INNER JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
+        ON m.st_sincro_sac = c.st_sincro_sac
+      WHERE m.dt_fim_mens IS NULL
+        AND c.dt_desativacao_sac IS NOT NULL
+        AND CAST(c.dt_desativacao_sac AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
+        AND CAST(c.dt_desativacao_sac AS DATE) <= LAST_DAY(CURRENT_DATE())
+        AND m.st_descricao_prd NOT LIKE '%Setup%'
+        AND m.st_descricao_prd NOT LIKE '%[PRO-RATA]%'
+      QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY m.st_sincro_sac, m.st_descricao_prd
+        ORDER BY m.dt_inicio_mens DESC
+      ) = 1
     ),
     renovacoes AS (
       SELECT DISTINCT d.st_sincro_sac, d.st_descricao_prd, d.mes
