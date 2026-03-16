@@ -30,8 +30,7 @@ inject_css()
 # AUTENTICAÇÃO
 # ─────────────────────────────────────────────
 def _check_allowed(email: str) -> bool:
-    allowed = st.secrets.get("app_config", {}).get("allowed_emails", [])
-    return email in allowed
+    return email.endswith("@inchurch.com.br")
 
 
 if not st.user.is_logged_in:
