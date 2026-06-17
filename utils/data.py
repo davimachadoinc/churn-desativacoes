@@ -243,19 +243,20 @@ def load_desativacoes_mensais() -> pd.DataFrame:
     query = """
     WITH desativados AS (
       SELECT
-        st_sincro_sac,
-        st_descricao_prd,
-        CAST(dt_fim_mens AS DATE)                                    AS dt_fim,
-        DATE_TRUNC(CAST(dt_fim_mens AS DATE), MONTH)                 AS mes,
-        valor_total
-      FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos`
-      WHERE dt_fim_mens IS NOT NULL
-        AND CAST(dt_fim_mens AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
-        AND CAST(dt_fim_mens AS DATE) <= LAST_DAY(CURRENT_DATE())
-        AND st_descricao_prd NOT LIKE '%Setup%'
-        AND st_descricao_prd NOT LIKE '%[PRO-RATA]%'
+        m.st_sincro_sac,
+        m.st_descricao_prd,
+        CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE)                    AS dt_fim,
+        DATE_TRUNC(CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE), MONTH) AS mes,
+        m.valor_total
+      FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
+      LEFT JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
+        ON m.st_sincro_sac = c.st_sincro_sac
+      WHERE m.dt_fim_mens IS NOT NULL
+        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
+        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) <= LAST_DAY(CURRENT_DATE())
+        AND m.st_descricao_prd NOT LIKE '%Setup%'
+        AND m.st_descricao_prd NOT LIKE '%[PRO-RATA]%'
       UNION ALL
-      -- Clientes com dt_desativacao_sac preenchida mas sem dt_fim_mens nos produtos
       SELECT
         m.st_sincro_sac,
         m.st_descricao_prd,
@@ -319,20 +320,21 @@ def load_desativacoes_por_plano() -> pd.DataFrame:
     query = f"""
     WITH desativados AS (
       SELECT
-        st_sincro_sac,
-        st_descricao_prd,
-        CAST(dt_fim_mens AS DATE)                                    AS dt_fim,
-        DATE_TRUNC(CAST(dt_fim_mens AS DATE), MONTH)                 AS mes,
-        valor_total
-      FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos`
-      WHERE dt_fim_mens IS NOT NULL
-        AND CAST(dt_fim_mens AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
-        AND CAST(dt_fim_mens AS DATE) <= LAST_DAY(CURRENT_DATE())
-        AND st_descricao_prd NOT LIKE '%Setup%'
-        AND st_descricao_prd NOT LIKE '%[PRO-RATA]%'
-        AND {_EXCL_MODULOS.format(col="st_descricao_prd")}
+        m.st_sincro_sac,
+        m.st_descricao_prd,
+        CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE)                    AS dt_fim,
+        DATE_TRUNC(CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE), MONTH) AS mes,
+        m.valor_total
+      FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
+      LEFT JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
+        ON m.st_sincro_sac = c.st_sincro_sac
+      WHERE m.dt_fim_mens IS NOT NULL
+        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
+        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) <= LAST_DAY(CURRENT_DATE())
+        AND m.st_descricao_prd NOT LIKE '%Setup%'
+        AND m.st_descricao_prd NOT LIKE '%[PRO-RATA]%'
+        AND {_EXCL_MODULOS.format(col="m.st_descricao_prd")}
       UNION ALL
-      -- Clientes com dt_desativacao_sac preenchida mas sem dt_fim_mens nos produtos
       SELECT
         m.st_sincro_sac,
         m.st_descricao_prd,
@@ -396,17 +398,18 @@ def load_desativacoes_detalhado() -> pd.DataFrame:
       SELECT
         m.st_sincro_sac,
         m.st_descricao_prd,
-        CAST(m.dt_fim_mens AS DATE)                              AS dt_fim,
-        DATE_TRUNC(CAST(m.dt_fim_mens AS DATE), MONTH)           AS mes,
+        CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE)                    AS dt_fim,
+        DATE_TRUNC(CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE), MONTH) AS mes,
         m.valor_total
       FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
+      LEFT JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
+        ON m.st_sincro_sac = c.st_sincro_sac
       WHERE m.dt_fim_mens IS NOT NULL
-        AND CAST(m.dt_fim_mens AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
-        AND CAST(m.dt_fim_mens AS DATE) <= LAST_DAY(CURRENT_DATE())
+        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
+        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) <= LAST_DAY(CURRENT_DATE())
         AND m.st_descricao_prd NOT LIKE '%Setup%'
         AND m.st_descricao_prd NOT LIKE '%[PRO-RATA]%'
       UNION ALL
-      -- Clientes com dt_desativacao_sac preenchida mas sem dt_fim_mens nos produtos
       SELECT
         m.st_sincro_sac,
         m.st_descricao_prd,
