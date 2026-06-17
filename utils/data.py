@@ -245,15 +245,15 @@ def load_desativacoes_mensais() -> pd.DataFrame:
       SELECT
         m.st_sincro_sac,
         m.st_descricao_prd,
-        CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE)                    AS dt_fim,
-        DATE_TRUNC(CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE), MONTH) AS mes,
+        COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE))                    AS dt_fim,
+        DATE_TRUNC(COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)), MONTH) AS mes,
         m.valor_total
       FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
       LEFT JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
         ON m.st_sincro_sac = c.st_sincro_sac
       WHERE m.dt_fim_mens IS NOT NULL
-        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
-        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) <= LAST_DAY(CURRENT_DATE())
+        AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
+        AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) <= LAST_DAY(CURRENT_DATE())
         AND m.st_descricao_prd NOT LIKE '%Setup%'
         AND m.st_descricao_prd NOT LIKE '%[PRO-RATA]%'
       UNION ALL
@@ -322,15 +322,15 @@ def load_desativacoes_por_plano() -> pd.DataFrame:
       SELECT
         m.st_sincro_sac,
         m.st_descricao_prd,
-        CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE)                    AS dt_fim,
-        DATE_TRUNC(CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE), MONTH) AS mes,
+        COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE))                    AS dt_fim,
+        DATE_TRUNC(COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)), MONTH) AS mes,
         m.valor_total
       FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
       LEFT JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
         ON m.st_sincro_sac = c.st_sincro_sac
       WHERE m.dt_fim_mens IS NOT NULL
-        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
-        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) <= LAST_DAY(CURRENT_DATE())
+        AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
+        AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) <= LAST_DAY(CURRENT_DATE())
         AND m.st_descricao_prd NOT LIKE '%Setup%'
         AND m.st_descricao_prd NOT LIKE '%[PRO-RATA]%'
         AND {_EXCL_MODULOS.format(col="m.st_descricao_prd")}
@@ -398,15 +398,15 @@ def load_desativacoes_detalhado() -> pd.DataFrame:
       SELECT
         m.st_sincro_sac,
         m.st_descricao_prd,
-        CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE)                    AS dt_fim,
-        DATE_TRUNC(CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE), MONTH) AS mes,
+        COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE))                    AS dt_fim,
+        DATE_TRUNC(COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)), MONTH) AS mes,
         m.valor_total
       FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
       LEFT JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
         ON m.st_sincro_sac = c.st_sincro_sac
       WHERE m.dt_fim_mens IS NOT NULL
-        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
-        AND CAST(COALESCE(c.dt_desativacao_sac, m.dt_fim_mens) AS DATE) <= LAST_DAY(CURRENT_DATE())
+        AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
+        AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) <= LAST_DAY(CURRENT_DATE())
         AND m.st_descricao_prd NOT LIKE '%Setup%'
         AND m.st_descricao_prd NOT LIKE '%[PRO-RATA]%'
       UNION ALL
