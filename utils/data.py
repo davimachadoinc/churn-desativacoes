@@ -249,8 +249,11 @@ def load_desativacoes_mensais() -> pd.DataFrame:
         DATE_TRUNC(COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)), MONTH) AS mes,
         m.valor_total
       FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
-      LEFT JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
-        ON m.st_sincro_sac = c.st_sincro_sac
+      LEFT JOIN (
+        SELECT st_sincro_sac, MAX(dt_desativacao_sac) AS dt_desativacao_sac
+        FROM `business-intelligence-467516.Splgc.splgc-clientes-inchurch`
+        GROUP BY st_sincro_sac
+      ) c ON m.st_sincro_sac = c.st_sincro_sac
       WHERE m.dt_fim_mens IS NOT NULL
         AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
         AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) <= LAST_DAY(CURRENT_DATE())
@@ -326,8 +329,11 @@ def load_desativacoes_por_plano() -> pd.DataFrame:
         DATE_TRUNC(COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)), MONTH) AS mes,
         m.valor_total
       FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
-      LEFT JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
-        ON m.st_sincro_sac = c.st_sincro_sac
+      LEFT JOIN (
+        SELECT st_sincro_sac, MAX(dt_desativacao_sac) AS dt_desativacao_sac
+        FROM `business-intelligence-467516.Splgc.splgc-clientes-inchurch`
+        GROUP BY st_sincro_sac
+      ) c ON m.st_sincro_sac = c.st_sincro_sac
       WHERE m.dt_fim_mens IS NOT NULL
         AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
         AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) <= LAST_DAY(CURRENT_DATE())
@@ -402,8 +408,11 @@ def load_desativacoes_detalhado() -> pd.DataFrame:
         DATE_TRUNC(COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)), MONTH) AS mes,
         m.valor_total
       FROM `business-intelligence-467516.Splgc.vw-splgc-tabela_mrr_validos` m
-      LEFT JOIN `business-intelligence-467516.Splgc.splgc-clientes-inchurch` c
-        ON m.st_sincro_sac = c.st_sincro_sac
+      LEFT JOIN (
+        SELECT st_sincro_sac, MAX(dt_desativacao_sac) AS dt_desativacao_sac
+        FROM `business-intelligence-467516.Splgc.splgc-clientes-inchurch`
+        GROUP BY st_sincro_sac
+      ) c ON m.st_sincro_sac = c.st_sincro_sac
       WHERE m.dt_fim_mens IS NOT NULL
         AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) >= DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 15 MONTH)
         AND COALESCE(CAST(c.dt_desativacao_sac AS DATE), CAST(m.dt_fim_mens AS DATE)) <= LAST_DAY(CURRENT_DATE())
